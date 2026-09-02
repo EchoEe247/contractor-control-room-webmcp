@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Contractor Control Room — a WebMCP-native project finance workspace for small contractors." />
+  <title>Contractor Control Room</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">WEBMCP CHALLENGE</p>
+      <h1>Contractor Control Room</h1>
+      <p class="subtitle">A shared project-finance workspace for contractors and browser agents.</p>
+    </div>
+    <div class="status-stack">
+      <span id="webmcp-status" class="status pending">WebMCP checking…</span>
+      <button id="reset-demo" class="ghost">Reset demo</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-grid">
+      <article class="panel project-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">ACTIVE PROJECT</p>
+            <h2 id="project-name">Martinez Kitchen Remodel</h2>
+          </div>
+          <span id="risk-badge" class="risk-badge">Review</span>
+        </div>
+
+        <div class="metric-grid" id="metric-grid"></div>
+      </article>
+
+      <article class="panel agent-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">AGENT COLLABORATION</p>
+            <h2>Live tool surface</h2>
+          </div>
+        </div>
+        <p class="muted">Open this page in a WebMCP-capable browser and ask the agent to inspect, simulate, or update the project.</p>
+        <div id="tool-list" class="tool-list"></div>
+        <div class="prompt-card">
+          <strong>Try:</strong>
+          <p>“Model a 15% labor overrun and delay the next customer payment by 14 days. What happens to margin and cash?”</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel comparison-panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">CURRENT VS SCENARIO</p>
+          <h2>See the consequence before committing the change</h2>
+        </div>
+        <button id="clear-scenario" class="ghost">Clear scenario</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Current</th><th>Scenario</th><th>Delta</th></tr></thead>
+          <tbody id="comparison-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="workspace-grid">
+      <article class="panel">
+        <div class="section-heading">
+          <div><p class="eyebrow">HUMAN CONTROLS</p><h2>Project assumptions</h2></div>
+        </div>
+        <form id="project-form" class="form-grid">
+          <label>Contract value<input name="contractValue" type="number" min="0" step="100" /></label>
+          <label>Budgeted cost<input name="budgetedCost" type="number" min="0" step="100" /></label>
+          <label>Actual cost to date<input name="actualCost" type="number" min="0" step="100" /></label>
+          <label>Remaining labor<input name="remainingLabor" type="number" min="0" step="100" /></label>
+          <label>Remaining materials<input name="remainingMaterials" type="number" min="0" step="100" /></label>
+          <label>Remaining subs/equipment<input name="remainingOther" type="number" min="0" step="100" /></label>
+          <label>Cash on hand<input name="cashOnHand" type="number" step="100" /></label>
+          <label>Minimum cash target<input name="minimumCash" type="number" step="100" /></label>
+          <label>Outstanding AR<input name="outstandingAr" type="number" min="0" step="100" /></label>
+          <label>Next customer payment<input name="nextPayment" type="number" min="0" step="100" /></label>
+          <label>Next payment in days<input name="nextPaymentDays" type="number" min="0" step="1" /></label>
+          <label>Finish date<input name="finishDate" type="date" /></label>
+          <button class="primary" type="submit">Apply project changes</button>
+        </form>
+      </article>
+
+      <article class="panel">
+        <div class="section-heading">
+          <div><p class="eyebrow">ACTIVITY</p><h2>Human + agent history</h2></div>
+        </div>
+        <ol id="activity-log" class="activity-log"></ol>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <span>Contractor Control Room</span>
+    <span>Open-source WebMCP Challenge entry</span>
+  </footer>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
