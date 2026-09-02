@@ -2,15 +2,16 @@ export function money(value){return new Intl.NumberFormat('en-US',{style:'curren
 export function pct(value){return `${(Number(value)||0).toFixed(1)}%`}
 export function daysBetween(a,b){return Math.round((new Date(b)-new Date(a))/86400000)}
 export function addDays(dateString,days){const d=new Date(`${dateString}T12:00:00`);d.setDate(d.getDate()+Number(days||0));return d.toISOString().slice(0,10)}
+export function roundMoney(value){return Math.round((Number(value)+Number.EPSILON)*100)/100}
 
 export function deriveProject(state){
-  const projectedFinalCost=Number(state.actualCost)+Number(state.remainingLabor)+Number(state.remainingMaterials)+Number(state.remainingOther)
-  const projectedProfit=Number(state.contractValue)-projectedFinalCost
+  const projectedFinalCost=roundMoney(Number(state.actualCost)+Number(state.remainingLabor)+Number(state.remainingMaterials)+Number(state.remainingOther))
+  const projectedProfit=roundMoney(Number(state.contractValue)-projectedFinalCost)
   const projectedMargin=state.contractValue?projectedProfit/Number(state.contractValue)*100:0
-  const budgetVariance=projectedFinalCost-Number(state.budgetedCost)
-  const cashBeforeNextPayment=Number(state.cashOnHand)-Number(state.remainingLabor)*0.5-Number(state.remainingMaterials)*0.35-Number(state.remainingOther)*0.25
-  const projectedCashAfterNextPayment=cashBeforeNextPayment+Number(state.nextPayment)
-  const cashGap=Math.min(cashBeforeNextPayment,projectedCashAfterNextPayment)-Number(state.minimumCash)
+  const budgetVariance=roundMoney(projectedFinalCost-Number(state.budgetedCost))
+  const cashBeforeNextPayment=roundMoney(Number(state.cashOnHand)-Number(state.remainingLabor)*0.5-Number(state.remainingMaterials)*0.35-Number(state.remainingOther)*0.25)
+  const projectedCashAfterNextPayment=roundMoney(cashBeforeNextPayment+Number(state.nextPayment))
+  const cashGap=roundMoney(Math.min(cashBeforeNextPayment,projectedCashAfterNextPayment)-Number(state.minimumCash))
   const riskLevel=projectedMargin<15||cashGap<0?'high':projectedMargin<25||budgetVariance>0?'review':'good'
   return {...state,projectedFinalCost,projectedProfit,projectedMargin,budgetVariance,cashBeforeNextPayment,projectedCashAfterNextPayment,cashGap,riskLevel}
 }
@@ -23,9 +24,9 @@ export function simulateProject(base,input={}){
   const finishDelayDays=Number(input.finishDelayDays||0)
   return deriveProject({
     ...base,
-    remainingLabor:Number(base.remainingLabor)*(1+laborPct),
-    remainingMaterials:Number(base.remainingMaterials)+materialIncrease,
-    remainingOther:Number(base.remainingOther)+otherIncrease,
+    remainingLabor:roundMoney(Number(base.remainingLabor)*(1+laborPct)),
+    remainingMaterials:roundMoney(Number(base.remainingMaterials)+materialIncrease),
+    remainingOther:roundMoney(Number(base.remainingOther)+otherIncrease),
     nextPaymentDays:Number(base.nextPaymentDays)+paymentDelayDays,
     finishDate:addDays(base.finishDate,finishDelayDays)
   })
