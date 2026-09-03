@@ -34,29 +34,34 @@ jobs:
           fi
 
       - name: Build release notes
-        if: steps.version.outputs.exists != 'true'
         shell: bash
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           START="## [${VERSION}]"
           awk -v start="$START" '
-            $0 == start {capture=1; next}
-            capture && substr($0,1,4) == "## [" {exit}
+            index($0,start) == 1 {capture=1; next}
+            capture && index($0,"## [") == 1 {exit}
             capture {print}
           ' CHANGELOG.md > release-notes.md
           if [ ! -s release-notes.md ]; then
             printf 'Release %s\n' "${{ steps.version.outputs.tag }}" > release-notes.md
           fi
 
-      - name: Create tag and GitHub release
-        if: steps.version.outputs.exists != 'true'
+      - name: Create or synchronize tag and GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           TAG="${{ steps.version.outputs.tag }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "$TAG" -m "Contractor Control Room $TAG"
-          git push origin "$TAG"
-          gh release create "$TAG" --title "$TAG" --notes-file release-notes.md
+          if [ "${{ steps.version.outputs.exists }}" != "true" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "$TAG" -m "Contractor Control Room $TAG"
+            git push origin "$TAG"
+          fi
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --title "$TAG" --notes-file release-notes.md
+          else
+            gh release create "$TAG" --title "$TAG" --notes-file release-notes.md --verify-tag
+          fi
