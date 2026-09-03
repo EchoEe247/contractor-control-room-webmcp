@@ -1,4 +1,4 @@
-import {deriveProject,simulateProject,identifyRisks,money,pct} from './calculations.js'
+import {deriveProject,simulateProject,identifyRisks,money,pct,isValidIsoDate} from './calculations.js'
 import {escapeHtml} from './text.js'
 import {registerWebMCPTools,WEBMCP_TOOL_NAMES} from './webmcp.js'
 
@@ -28,7 +28,7 @@ function renderToolList(){document.querySelector('#tool-list').innerHTML=WEBMCP_
 
 const actions={
  getState:()=>snapshot(),
- configureProject:(changes,source='Agent')=>{state={...state,...changes};scenario=null;persist();render();log(source,'Updated live project assumptions.');return current()},
+ configureProject:(changes,source='Agent')=>{if(Object.prototype.hasOwnProperty.call(changes,'finishDate')&&!isValidIsoDate(changes.finishDate))throw new TypeError('finishDate must be a real YYYY-MM-DD calendar date.');state={...state,...changes};scenario=null;persist();render();log(source,'Updated live project assumptions.');return current()},
  recordJobCosts:({amount,category='other',note=''},source='Agent')=>{const n=Number(amount);state.actualCost=Number(state.actualCost)+n;if(category==='labor')state.remainingLabor=Math.max(0,Number(state.remainingLabor)-n);if(category==='materials')state.remainingMaterials=Math.max(0,Number(state.remainingMaterials)-n);if(category==='other')state.remainingOther=Math.max(0,Number(state.remainingOther)-n);persist();render();log(source,`Recorded ${money(n)} ${category} cost${note?`: ${note}`:''}.`);return current()},
  simulate:(input,source='Agent')=>{scenario=simulateProject(state,input);render();log(source,'Created a non-destructive project scenario.');return {baseline:current(),scenario}},
  clearScenario:(source='Human')=>{scenario=null;render();log(source,'Cleared scenario and returned to baseline.');return current()},

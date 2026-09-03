@@ -1,7 +1,8 @@
 export function money(value){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Number(value)||0)}
 export function pct(value){return `${(Number(value)||0).toFixed(1)}%`}
 export function daysBetween(a,b){return Math.round((new Date(b)-new Date(a))/86400000)}
-export function addDays(dateString,days){const d=new Date(`${dateString}T00:00:00Z`);d.setUTCDate(d.getUTCDate()+Number(days||0));return d.toISOString().slice(0,10)}
+export function isValidIsoDate(dateString){if(typeof dateString!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(dateString))return false;const d=new Date(`${dateString}T00:00:00Z`);return Number.isFinite(d.getTime())&&d.toISOString().slice(0,10)===dateString}
+export function addDays(dateString,days){if(!isValidIsoDate(dateString))throw new TypeError('Date must be a real YYYY-MM-DD calendar date.');const d=new Date(`${dateString}T00:00:00Z`);d.setUTCDate(d.getUTCDate()+Number(days||0));return d.toISOString().slice(0,10)}
 export function roundMoney(value){return Math.round((Number(value)+Number.EPSILON)*100)/100}
 
 export function deriveProject(state){
