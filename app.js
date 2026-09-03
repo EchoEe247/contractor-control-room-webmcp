@@ -1,4 +1,5 @@
 import {deriveProject,simulateProject,identifyRisks,money,pct} from './calculations.js'
+import {escapeHtml} from './text.js'
 import {registerWebMCPTools,WEBMCP_TOOL_NAMES} from './webmcp.js'
 
 const STORAGE_KEY='contractor-control-room-v1'
@@ -20,9 +21,9 @@ function render(){
  const badge=document.querySelector('#risk-badge');badge.className=`risk-badge ${d.riskLevel}`;badge.textContent=d.riskLevel==='good'?'On track':d.riskLevel==='high'?'High risk':'Review'
  renderComparison();fillForm()
 }
-function renderComparison(){const base=current(),s=scenario||base;const rows=[['Final cost',money(base.projectedFinalCost),money(s.projectedFinalCost),delta(s.projectedFinalCost-base.projectedFinalCost)],['Margin',pct(base.projectedMargin),pct(s.projectedMargin),delta(s.projectedMargin-base.projectedMargin,'pct')],['Cash before payment',money(base.cashBeforeNextPayment),money(s.cashBeforeNextPayment),delta(s.cashBeforeNextPayment-base.cashBeforeNextPayment)],['Next payment timing',`${base.nextPaymentDays} days`,`${s.nextPaymentDays} days`,`${s.nextPaymentDays-base.nextPaymentDays>0?'+':''}${s.nextPaymentDays-base.nextPaymentDays} days`],['Finish date',base.finishDate,s.finishDate,s.finishDate===base.finishDate?'—':s.finishDate]];document.querySelector('#comparison-body').innerHTML=rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}
+function renderComparison(){const base=current(),s=scenario||base;const safeBaseDate=escapeHtml(base.finishDate),safeScenarioDate=escapeHtml(s.finishDate);const rows=[['Final cost',money(base.projectedFinalCost),money(s.projectedFinalCost),delta(s.projectedFinalCost-base.projectedFinalCost)],['Margin',pct(base.projectedMargin),pct(s.projectedMargin),delta(s.projectedMargin-base.projectedMargin,'pct')],['Cash before payment',money(base.cashBeforeNextPayment),money(s.cashBeforeNextPayment),delta(s.cashBeforeNextPayment-base.cashBeforeNextPayment)],['Next payment timing',`${base.nextPaymentDays} days`,`${s.nextPaymentDays} days`,`${s.nextPaymentDays-base.nextPaymentDays>0?'+':''}${s.nextPaymentDays-base.nextPaymentDays} days`],['Finish date',safeBaseDate,safeScenarioDate,s.finishDate===base.finishDate?'—':safeScenarioDate]];document.querySelector('#comparison-body').innerHTML=rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}
 function fillForm(){const f=document.querySelector('#project-form');for(const [k,v] of Object.entries(state)){if(f.elements[k])f.elements[k].value=v}}
-function renderActivity(){document.querySelector('#activity-log').innerHTML=activity.length?activity.map(x=>`<li><strong>${x.source}</strong> · ${x.time}<br>${x.message}</li>`).join(''):'<li>No changes yet. Human and agent actions will appear here.</li>'}
+function renderActivity(){document.querySelector('#activity-log').innerHTML=activity.length?activity.map(x=>`<li><strong>${escapeHtml(x.source)}</strong> · ${escapeHtml(x.time)}<br>${escapeHtml(x.message)}</li>`).join(''):'<li>No changes yet. Human and agent actions will appear here.</li>'}
 function renderToolList(){document.querySelector('#tool-list').innerHTML=WEBMCP_TOOL_NAMES.map(([n,m])=>`<div class="tool"><span>${n}</span><span>${m}</span></div>`).join('')}
 
 const actions={
