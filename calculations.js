@@ -1,7 +1,7 @@
 export function money(value){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Number(value)||0)}
 export function pct(value){return `${(Number(value)||0).toFixed(1)}%`}
 export function daysBetween(a,b){return Math.round((new Date(b)-new Date(a))/86400000)}
-export function addDays(dateString,days){const d=new Date(`${dateString}T12:00:00`);d.setDate(d.getDate()+Number(days||0));return d.toISOString().slice(0,10)}
+export function addDays(dateString,days){const d=new Date(`${dateString}T00:00:00Z`);d.setUTCDate(d.getUTCDate()+Number(days||0));return d.toISOString().slice(0,10)}
 export function roundMoney(value){return Math.round((Number(value)+Number.EPSILON)*100)/100}
 
 export function deriveProject(state){
