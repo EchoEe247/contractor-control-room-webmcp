@@ -17,7 +17,7 @@ export async function registerWebMCPTools(actions){
       name:'configure_project',
       title:'Configure project',
       description:'Update live project assumptions such as contract value, costs, cash, receivables, payment timing, or finish date. Only provided fields are changed.',
-      inputSchema:{type:'object',properties:{contractValue:{type:'number',minimum:0},budgetedCost:{type:'number',minimum:0},actualCost:{type:'number',minimum:0},remainingLabor:{type:'number',minimum:0},remainingMaterials:{type:'number',minimum:0},remainingOther:{type:'number',minimum:0},cashOnHand:{type:'number'},minimumCash:{type:'number'},outstandingAr:{type:'number',minimum:0},nextPayment:{type:'number',minimum:0},nextPaymentDays:{type:'number',minimum:0},finishDate:{type:'string',description:'ISO date YYYY-MM-DD'}},additionalProperties:false},
+      inputSchema:{type:'object',properties:{contractValue:{type:'number',minimum:0},budgetedCost:{type:'number',minimum:0},actualCost:{type:'number',minimum:0},remainingLabor:{type:'number',minimum:0},remainingMaterials:{type:'number',minimum:0},remainingOther:{type:'number',minimum:0},cashOnHand:{type:'number'},minimumCash:{type:'number'},outstandingAr:{type:'number',minimum:0},nextPayment:{type:'number',minimum:0},nextPaymentDays:{type:'number',minimum:0},finishDate:{type:'string',pattern:'^[0-9]{4}-[0-9]{2}-[0-9]{2}$',description:'Real calendar date in YYYY-MM-DD form'}},additionalProperties:false},
       annotations:{readOnlyHint:false,untrustedContentHint:false},
       execute:async input=>result('Updated the live project and refreshed the dashboard.',actions.configureProject(input))
     },
