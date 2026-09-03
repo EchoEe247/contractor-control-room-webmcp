@@ -2,7 +2,7 @@
 
 Date: 2026-09-03
 Release reviewed: `v0.1.0`
-Maintenance release prepared: `v0.1.1`
+Maintenance release published: `v0.1.1`
 
 ## Purpose
 
@@ -78,10 +78,38 @@ Resolution:
 - PR CI run `33757367746`, Node 20 and 22 passed;
 - squash merge `f2b8b0831d061952a9543992646a77d96cd40c84`.
 
-## v0.1.1 maintenance release gate
+## v0.1.1 maintenance release
 
-The `v0.1.1` release candidate contains the five completed maintenance resolutions above, preserves the zero-dependency architecture, and retains the Node.js 20/22 application test matrix. The release remains gated on the release-preparation PR, post-merge main CI, and automated annotated-tag/GitHub-release creation.
+The five maintenance resolutions above were packaged through issue #15 / PR #16.
+
+Release evidence:
+- release-preparation PR CI run `33757670227`, Node 20 and 22 passed;
+- release merge commit `e973df38f0d7467af51d8c86c661247773723eb8`;
+- post-merge main CI run `33757830386`, Node 20 and 22 passed;
+- release workflow run `33757875849` passed;
+- public GitHub release ID `382019760` is non-draft and non-prerelease;
+- annotated tag object `f62068c9dc0491560b4af11c6cf55385296ce55d` points to release commit `e973df38f0d7467af51d8c86c661247773723eb8`;
+- the original `v0.1.0` annotated tag remains unchanged.
+
+## Published archive execution
+
+Issue #17 closed the final executable-release evidence gap with PR #18 and a dedicated `Release archive smoke` workflow.
+
+The workflow runs only after successful `CI` on `main`. It resolves the latest public release, downloads the GitHub ZIP archive through the repository API into a fresh GitHub-hosted runner workspace, extracts it, verifies its package version and dependency boundary, and runs the documented checks from the extracted archive rather than from a working-tree checkout.
+
+First successful evidence run:
+- PR #18 merge commit: `30a1b83d1dc079b91ffac5e90adfb2279ac35d1c`;
+- post-merge main CI run: `33793871803`, Node 20 and 22 passed;
+- archive-smoke run: `33793906340`, job `100776852592`, passed;
+- runner: Ubuntu 24.04 (`ubuntu-24.04`), Node `20.20.2`, npm `10.8.2`;
+- release resolved: `v0.1.1`;
+- archived package version: `0.1.1`;
+- archive size: `28,207` bytes;
+- archive SHA-256: `b54371b8145d273085622196bf69e5939729318ad978825ad775672be37bf05e`;
+- extracted archive contained no preexisting `node_modules` directory;
+- `npm run check` passed from the extracted archive;
+- test result: 11 passed, 0 failed, 0 skipped, 0 cancelled.
 
 ## Scope note
 
-This audit validates repository/release metadata and the published tagged tree through GitHub. The execution environment used for the original v0.1.0 audit could not directly download the public archive from GitHub, so tagged-tree inspection plus successful GitHub CI are used as executable release evidence; that limitation is recorded rather than overstated as an independently downloaded archive execution.
+The environment used for the original v0.1.0 audit could not itself resolve/download GitHub archives, so the first audit correctly recorded tagged-tree inspection plus GitHub CI rather than claiming an independent archive execution. That historical limitation is now closed for `v0.1.1`: a fresh GitHub-hosted runner downloaded the actual published ZIP through the repository API and executed the documented check suite from the extraction. This remains GitHub-hosted verification, not evidence from an unrelated third-party network or operating system.
