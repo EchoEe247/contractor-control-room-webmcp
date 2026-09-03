@@ -5,6 +5,18 @@ export function isValidIsoDate(dateString){if(typeof dateString!=='string'||!/^\
 export function addDays(dateString,days){if(!isValidIsoDate(dateString))throw new TypeError('Date must be a real YYYY-MM-DD calendar date.');const d=new Date(`${dateString}T00:00:00Z`);d.setUTCDate(d.getUTCDate()+Number(days||0));return d.toISOString().slice(0,10)}
 export function roundMoney(value){return Math.round((Number(value)+Number.EPSILON)*100)/100}
 
+const NONNEGATIVE_PROJECT_FIELDS=['contractValue','budgetedCost','actualCost','remainingLabor','remainingMaterials','remainingOther','outstandingAr','nextPayment','nextPaymentDays']
+const SIGNED_PROJECT_FIELDS=['cashOnHand','minimumCash']
+export function sanitizeProjectState(candidate,defaults){
+  const source=candidate&&typeof candidate==='object'&&!Array.isArray(candidate)?candidate:{}
+  const next={...defaults}
+  if(typeof source.projectName==='string'&&source.projectName.trim())next.projectName=source.projectName
+  for(const key of NONNEGATIVE_PROJECT_FIELDS){const value=source[key];if(typeof value==='number'&&Number.isFinite(value)&&value>=0)next[key]=value}
+  for(const key of SIGNED_PROJECT_FIELDS){const value=source[key];if(typeof value==='number'&&Number.isFinite(value))next[key]=value}
+  if(isValidIsoDate(source.finishDate))next.finishDate=source.finishDate
+  return next
+}
+
 export function deriveProject(state){
   const projectedFinalCost=roundMoney(Number(state.actualCost)+Number(state.remainingLabor)+Number(state.remainingMaterials)+Number(state.remainingOther))
   const projectedProfit=roundMoney(Number(state.contractValue)-projectedFinalCost)
