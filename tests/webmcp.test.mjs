@@ -19,6 +19,7 @@ test('registers the documented WebMCP tool surface with correct read hints',asyn
     for(const name of ['configure_project','record_job_costs','simulate_scenario','apply_scenario','clear_scenario']){
       assert.equal(byName[name].annotations.readOnlyHint,false)
     }
+    assert.equal(byName.configure_project.inputSchema.properties.finishDate.pattern,'^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
   }finally{
     delete globalThis.document
   }
