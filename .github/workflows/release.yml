@@ -38,9 +38,10 @@ jobs:
         shell: bash
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          awk -v version="$VERSION" '
-            $0 ~ "^## \\[" version "\\]" {capture=1; next}
-            capture && /^## \\[/ {exit}
+          START="## [${VERSION}]"
+          awk -v start="$START" '
+            $0 == start {capture=1; next}
+            capture && substr($0,1,4) == "## [" {exit}
             capture {print}
           ' CHANGELOG.md > release-notes.md
           if [ ! -s release-notes.md ]; then
