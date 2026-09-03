@@ -1,0 +1,91 @@
+name: Release archive smoke
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+
+      - name: Resolve latest public release
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq .tag_name)"
+          draft="$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq .draft)"
+          prerelease="$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq .prerelease)"
+          test -n "$tag"
+          test "$draft" = "false"
+          test "$prerelease" = "false"
+          case "$tag" in
+            v*) version="${tag#v}" ;;
+            *) echo "Latest release tag must start with v: $tag" >&2; exit 1 ;;
+          esac
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Download and extract published ZIP archive
+        id: archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ steps.release.outputs.tag }}"
+          curl --fail --location --silent --show-error \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/zipball/${tag}" \
+            --output release.zip
+          test -s release.zip
+          sha256="$(sha256sum release.zip | awk '{print $1}')"
+          bytes="$(stat -c '%s' release.zip)"
+          mkdir release
+          unzip -q release.zip -d release
+          root="$(find release -mindepth 1 -maxdepth 1 -type d -print -quit)"
+          test -n "$root"
+          echo "root=$root" >> "$GITHUB_OUTPUT"
+          echo "sha256=$sha256" >> "$GITHUB_OUTPUT"
+          echo "bytes=$bytes" >> "$GITHUB_OUTPUT"
+
+      - name: Verify archive version and clean dependency boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${{ steps.archive.outputs.root }}"
+          expected="${{ steps.release.outputs.version }}"
+          actual="$(node -e 'const fs=require("fs"); const p=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); process.stdout.write(p.version)' "$root/package.json")"
+          test "$actual" = "$expected"
+          test ! -e "$root/node_modules"
+
+      - name: Run documented checks from published archive
+        working-directory: ${{ steps.archive.outputs.root }}
+        run: npm run check
+
+      - name: Write archive evidence
+        shell: bash
+        run: |
+          {
+            echo "## Published release archive smoke"
+            echo
+            echo "- tag: \`${{ steps.release.outputs.tag }}\`"
+            echo "- package version: \`${{ steps.release.outputs.version }}\`"
+            echo "- archive bytes: \`${{ steps.archive.outputs.bytes }}\`"
+            echo "- archive SHA-256: \`${{ steps.archive.outputs.sha256 }}\`"
+            echo "- source: GitHub ZIP archive downloaded through the public repository API"
+            echo "- check: \`npm run check\` passed from the extracted archive"
+          } >> "$GITHUB_STEP_SUMMARY"
