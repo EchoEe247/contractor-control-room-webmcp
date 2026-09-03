@@ -93,7 +93,7 @@ Release evidence:
 
 ## Published archive execution
 
-Issue #17 closed the final executable-release evidence gap with PR #18 and a dedicated `Release archive smoke` workflow.
+Issue #17 closed the executable-release evidence gap with PR #18 and a dedicated `Release archive smoke` workflow.
 
 The workflow runs only after successful `CI` on `main`. It resolves the latest public release, downloads the GitHub ZIP archive through the repository API into a fresh GitHub-hosted runner workspace, extracts it, verifies its package version and dependency boundary, and runs the documented checks from the extracted archive rather than from a working-tree checkout.
 
@@ -104,12 +104,63 @@ First successful evidence run:
 - runner: Ubuntu 24.04 (`ubuntu-24.04`), Node `20.20.2`, npm `10.8.2`;
 - release resolved: `v0.1.1`;
 - archived package version: `0.1.1`;
-- archive size: `28,207` bytes;
-- archive SHA-256: `b54371b8145d273085622196bf69e5939729318ad978825ad775672be37bf05e`;
+- REST `zipball` archive size: `28,207` bytes;
+- REST `zipball` archive SHA-256: `b54371b8145d273085622196bf69e5939729318ad978825ad775672be37bf05e`;
 - extracted archive contained no preexisting `node_modules` directory;
 - `npm run check` passed from the extracted archive;
 - test result: 11 passed, 0 failed, 0 skipped, 0 cancelled.
 
+A second hosted archive-smoke run `33794141507` later downloaded the unchanged release and produced the same REST `zipball` size and SHA-256 while again passing the extracted check suite.
+
+### Archive representation note
+
+The REST repository `zipball` endpoint and GitHub's public `github.com/.../archive/refs/tags/...zip` -> codeload path are not treated as byte-identical artifacts. During issue #20, Android/Termux downloaded the public codeload representation and received a different compressed ZIP:
+
+- codeload size: `27,559` bytes;
+- codeload SHA-256: `c129f022acc788cfa1e7c0e8a47445a183f1c5196f4103791862e96ae5199b63`;
+- ZIP integrity: passed;
+- archive comment identified commit `e973df38f0d7467af51d8c86c661247773723eb8`;
+- annotated `v0.1.1` tag object `f62068c9dc0491560b4af11c6cf55385296ce55d` resolves to that exact same commit.
+
+The release boundary is therefore anchored to the annotated tag target commit and extracted release contents. The two recorded SHA-256 values are representation-specific evidence and are not asserted to be interchangeable across GitHub archive endpoints.
+
+## Android/Termux consumer execution
+
+Issue #20 added a distinct consumer-path validation from a Google Pixel 6a running Android 17 and Termux 0.118.3 (F-Droid), rather than another GitHub-hosted runner.
+
+Environment and archive evidence:
+- Node `v24.18.0`;
+- npm `11.19.1`;
+- Python `3.14.6`;
+- public archive URL: `https://github.com/EchoEe247/contractor-control-room-webmcp/archive/refs/tags/v0.1.1.zip`;
+- codeload archive: `27,559` bytes, SHA-256 `c129f022acc788cfa1e7c0e8a47445a183f1c5196f4103791862e96ae5199b63`;
+- embedded commit matched tagged commit `e973df38f0d7467af51d8c86c661247773723eb8`;
+- package version: `0.1.1`;
+- 27 archive entries / 22 extracted files;
+- expected package/license/README/source/tests/docs/workflows present;
+- no `node_modules` or unexpected vendor dependency tree.
+
+Execution evidence from the extracted public archive:
+- `npm run check` exit code `0`;
+- syntax checks passed for `app.js`, `calculations.js`, `text.js`, and `webmcp.js`;
+- tests: 11 total, 11 passed, 0 failed, 0 skipped, 0 cancelled.
+
+Native browser smoke:
+- extracted application served only on `127.0.0.1:49173` with Python `http.server`;
+- curl returned HTTP 200 and useful HTML;
+- existing Termux `~/bin/web-browser` using native Chromium/CDP navigated successfully;
+- document title: `Contractor Control Room`;
+- `document.readyState`: `complete`;
+- core project-finance dashboard rendered, including the `Martinez Kitchen Remodel` demo project;
+- projected final cost, projected margin, cash-before-next-payment, outstanding AR, contract/budget/actual-cost controls, activity area, and documented tool surface were present;
+- observed WebMCP status: `WebMCP unavailable in this browser`;
+- no runtime/render failure observed; only a non-blocking `/favicon.ico` 404;
+- temporary server was terminated, its port was confirmed closed, and the isolated validation directory was removed.
+
+Issue #20 was closed completed only after the full Android/Termux receipt was attached.
+
 ## Scope note
 
-The environment used for the original v0.1.0 audit could not itself resolve/download GitHub archives, so the first audit correctly recorded tagged-tree inspection plus GitHub CI rather than claiming an independent archive execution. That historical limitation is now closed for `v0.1.1`: a fresh GitHub-hosted runner downloaded the actual published ZIP through the repository API and executed the documented check suite from the extraction. This remains GitHub-hosted verification, not evidence from an unrelated third-party network or operating system.
+The original v0.1.0 audit could not itself resolve/download GitHub archives, so it correctly recorded tagged-tree inspection plus GitHub CI rather than claiming independent archive execution. That historical limitation is now closed for `v0.1.1` in two distinct ways: a fresh GitHub-hosted Ubuntu runner executed the REST `zipball` extraction, and an Android/Termux consumer independently downloaded the public codeload representation for the same annotated-tag target commit, executed the complete check suite, and rendered the static application in native Chromium.
+
+This evidence does not claim validation on Windows, macOS, iOS, or browsers with active WebMCP support.
