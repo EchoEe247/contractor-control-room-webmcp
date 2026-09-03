@@ -1,4 +1,4 @@
-import {deriveProject,simulateProject,identifyRisks,money,pct,isValidIsoDate} from './calculations.js'
+import {deriveProject,simulateProject,identifyRisks,money,pct,isValidIsoDate,sanitizeProjectState} from './calculations.js'
 import {escapeHtml} from './text.js'
 import {registerWebMCPTools,WEBMCP_TOOL_NAMES} from './webmcp.js'
 
@@ -6,7 +6,7 @@ const STORAGE_KEY='contractor-control-room-v1'
 const DEFAULT_STATE={projectName:'Martinez Kitchen Remodel',contractValue:82000,budgetedCost:57400,actualCost:34800,remainingLabor:12200,remainingMaterials:8100,remainingOther:2300,cashOnHand:18300,minimumCash:10000,outstandingAr:14500,nextPayment:18000,nextPaymentDays:12,finishDate:'2026-10-18'}
 let state=loadState();let scenario=null;let activity=[]
 
-function loadState(){try{return {...DEFAULT_STATE,...JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')}}catch{return {...DEFAULT_STATE}}}
+function loadState(){try{const normalized=sanitizeProjectState(JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'),DEFAULT_STATE);try{localStorage.setItem(STORAGE_KEY,JSON.stringify(normalized))}catch{}return normalized}catch{return {...DEFAULT_STATE}}}
 function persist(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
 function log(source,message){activity.unshift({source,message,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});activity=activity.slice(0,12);renderActivity()}
 function current(){return deriveProject(state)}
