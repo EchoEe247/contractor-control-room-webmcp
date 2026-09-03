@@ -24,10 +24,10 @@ export function simulateProject(base,input={}){
   const finishDelayDays=Number(input.finishDelayDays||0)
   return deriveProject({
     ...base,
-    remainingLabor:roundMoney(Number(base.remainingLabor)*(1+laborPct)),
-    remainingMaterials:roundMoney(Number(base.remainingMaterials)+materialIncrease),
-    remainingOther:roundMoney(Number(base.remainingOther)+otherIncrease),
-    nextPaymentDays:Number(base.nextPaymentDays)+paymentDelayDays,
+    remainingLabor:roundMoney(Math.max(0,Number(base.remainingLabor)*(1+laborPct))),
+    remainingMaterials:roundMoney(Math.max(0,Number(base.remainingMaterials)+materialIncrease)),
+    remainingOther:roundMoney(Math.max(0,Number(base.remainingOther)+otherIncrease)),
+    nextPaymentDays:Math.max(0,Number(base.nextPaymentDays)+paymentDelayDays),
     finishDate:addDays(base.finishDate,finishDelayDays)
   })
 }
