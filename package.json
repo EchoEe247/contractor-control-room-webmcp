@@ -1,6 +1,6 @@
 {
   "name": "contractor-control-room-webmcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Agent-native contractor project-finance workspace exposing deterministic WebMCP tools.",
   "private": false,
   "type": "module",
