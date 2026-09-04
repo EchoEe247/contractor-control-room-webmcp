@@ -1,0 +1,36 @@
+name: Live site smoke
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify public homepage
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://contractor-control-room-webmcp.onrender.com/"
+          curl --fail --silent --show-error --location \
+            --retry 5 --retry-delay 2 --retry-all-errors \
+            "$url" -o /tmp/index.html
+          grep -F '<title>Contractor Control Room</title>' /tmp/index.html
+          grep -F 'A shared project-finance workspace for contractors and browser agents.' /tmp/index.html
+
+      - name: Verify static assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://contractor-control-room-webmcp.onrender.com"
+          for path in /styles.css /app.js /calculations.js /webmcp.js; do
+            curl --fail --silent --show-error --location \
+              --retry 5 --retry-delay 2 --retry-all-errors \
+              "$base$path" -o /dev/null
+          done
