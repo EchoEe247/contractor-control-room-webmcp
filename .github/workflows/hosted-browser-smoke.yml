@@ -1,0 +1,54 @@
+name: Hosted browser smoke
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Verify hosted application in Chromium
+        shell: bash
+        run: |
+          set -euo pipefail
+          google-chrome --version
+          google-chrome \
+            --headless=new \
+            --no-sandbox \
+            --disable-dev-shm-usage \
+            --virtual-time-budget=5000 \
+            --dump-dom \
+            https://contractor-control-room-webmcp.onrender.com/ \
+            > hosted-dom.html
+
+          grep -F '<title>Contractor Control Room</title>' hosted-dom.html
+          grep -F 'Martinez Kitchen Remodel' hosted-dom.html
+          grep -F 'get_project_state' hosted-dom.html
+          grep -F 'configure_project' hosted-dom.html
+          grep -F 'record_job_costs' hosted-dom.html
+          grep -F 'simulate_scenario' hosted-dom.html
+          grep -F 'identify_risks' hosted-dom.html
+          grep -F 'apply_scenario' hosted-dom.html
+          grep -F 'clear_scenario' hosted-dom.html
+
+          if grep -Fq 'WebMCP registration failed' hosted-dom.html; then
+            echo 'Hosted application reached a WebMCP registration failure state.' >&2
+            exit 1
+          fi
+
+          if grep -Fq 'WebMCP tools ready' hosted-dom.html; then
+            echo 'WEBMCP_RUNTIME_STATUS=ready'
+          elif grep -Fq 'WebMCP unavailable in this browser' hosted-dom.html; then
+            echo 'WEBMCP_RUNTIME_STATUS=browser_api_unavailable'
+          else
+            echo 'Hosted application did not resolve its WebMCP runtime status.' >&2
+            exit 1
+          fi
