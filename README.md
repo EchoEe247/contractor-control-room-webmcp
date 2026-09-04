@@ -7,6 +7,12 @@ Contractor Control Room is an agent-native project-finance workspace for small c
 
 The project began as a 2026 WebMCP Challenge entry and is maintained as a standalone open-source application after the challenge.
 
+## Live demo
+
+**https://contractor-control-room-webmcp.onrender.com/**
+
+The demo is a static deployment of this repository's `main` branch. State remains browser-local; the hosted application does not add a backend, authentication layer, payment surface, or external state mutation.
+
 ## What it does
 
 The dashboard tracks contract value, projected final cost, margin, cash exposure, receivables, payment timing, and finish date. A browser agent can inspect the same state and model scenarios without silently changing the baseline.
