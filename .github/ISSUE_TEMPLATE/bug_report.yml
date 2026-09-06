@@ -1,0 +1,63 @@
+name: Bug report
+description: Report a reproducible problem in the dashboard, calculations, persistence, or WebMCP behavior
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. Please keep financial/project data fictional or sanitized.
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Release tag (for example v0.1.1) or commit SHA.
+      placeholder: v0.1.1
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Chrome 152, Firefox 143, etc.
+    validations:
+      required: true
+  - type: dropdown
+    id: webmcp
+    attributes:
+      label: WebMCP availability
+      options:
+        - WebMCP available
+        - WebMCP unavailable / normal dashboard only
+        - Unsure
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: Give the smallest sequence that reliably reproduces the problem.
+      placeholder: |
+        1. Open ...
+        2. Set ...
+        3. Run ...
+        4. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include console errors or tool responses when relevant. Remove secrets and real customer/project data.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context
+      description: Optional screenshots, environment details, or a minimal sanitized state that helps reproduce the issue.
