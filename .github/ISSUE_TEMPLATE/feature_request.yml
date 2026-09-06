@@ -1,0 +1,46 @@
+name: Feature request
+description: Propose a focused improvement that keeps Contractor Control Room understandable and useful
+title: "[Feature] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The project is intentionally small. Please describe the user problem first; a larger framework or dependency should solve a concrete need rather than add complexity by itself.
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+      description: What contractor or browser-agent workflow is difficult or impossible today?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: Describe the behavior you want without prescribing an implementation unless necessary.
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Primary surface
+      options:
+        - Human dashboard
+        - WebMCP tool behavior
+        - Project-finance calculations
+        - Browser-local persistence
+        - Compatibility / accessibility
+        - Testing / maintenance
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence or example
+      description: Optional concrete workflow, screenshot, compatibility case, or calculation example showing why this matters.
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Scope boundaries
+      description: Anything this request should explicitly avoid changing?

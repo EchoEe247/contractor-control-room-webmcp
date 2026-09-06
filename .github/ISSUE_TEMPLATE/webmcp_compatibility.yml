@@ -1,0 +1,59 @@
+name: WebMCP compatibility report
+description: Report a browser/WebMCP environment that works, partially works, or fails
+title: "[WebMCP] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Compatibility reports help distinguish application defects from browser/API availability. Please do not include credentials or real project/customer data.
+  - type: input
+    id: version
+    attributes:
+      label: Contractor Control Room version or commit
+      placeholder: v0.1.1
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser build
+      placeholder: Browser name and exact version/build
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: Windows 11, macOS 15, Ubuntu 24.04, Android 17, etc.
+    validations:
+      required: true
+  - type: dropdown
+    id: api
+    attributes:
+      label: document.modelContext / WebMCP API state
+      options:
+        - Available
+        - Unavailable
+        - Present but registration fails
+        - Unsure
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: What happened?
+      description: State which tools registered, which action was attempted, and the observed result.
+    validations:
+      required: true
+  - type: textarea
+    id: console
+    attributes:
+      label: Relevant console output
+      description: Paste only the relevant sanitized lines. Remove secrets and identifying project data.
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Include enough detail for another person to repeat the check.
+    validations:
+      required: true
